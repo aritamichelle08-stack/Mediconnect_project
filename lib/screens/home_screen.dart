@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -34,9 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-      ),
+      appBar: AppBar(title: Text(_titles[_selectedIndex])),
       body: _tabs[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -45,22 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.medication),
-            label: 'Meds',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.medication), label: 'Meds'),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Alerts',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
@@ -80,5 +70,23 @@ class _PlaceholderTab extends StatelessWidget {
         style: const TextStyle(fontSize: 18, color: Colors.grey),
       ),
     );
+  }
+}
+
+Future<void> sendEmergencyAlert({
+  required String patientId,
+  required String caregiverId,
+  required String patientName,
+}) async {
+  try {
+    await FirebaseFirestore.instance.collection('alerts').add({
+      'patientId': patientId,
+      'caregiverId': caregiverId,
+      'message': '🚨 EMERGENCY: $patientName requires urgent assistance!',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    print('Emergency alert sent!');
+  } catch (e) {
+    print('Failed to send alert: $e');
   }
 }
